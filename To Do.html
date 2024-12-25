@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333333;
+            font-size: 2rem;
+        }
+
+        .task-input {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .task-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .task-input input:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+
+        .task-input button {
+            margin-left: 10px;
+            padding: 12px 20px;
+            background-color: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .task-input button:hover {
+            background-color: #1e63d2;
+            transform: scale(1.05);
+        }
+
+        .tasks {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            transition: background-color 0.3s;
+        }
+
+        .task:hover {
+            background-color: #f1f1f1;
+        }
+
+        .task.completed {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        .task button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .task .complete {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .task .complete:hover {
+            background-color: #218838;
+            transform: scale(1.1);
+        }
+
+        .task .edit {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .task .edit:hover {
+            background-color: #e0a800;
+            transform: scale(1.1);
+        }
+
+        .task .delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .task .delete:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+
+        .task-time, .task-completed-time {
+            font-size: 12px;
+            color: #888;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do App</h1>
+        <div class="task-input">
+            <input type="text" id="task-input" placeholder="Enter a task">
+            <button onclick="addTask()">Add</button>
+        </div>
+        <ul class="tasks" id="tasks"></ul>
+    </div>
+
+    <script>
+        const tasks = [];
+
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskText = taskInput.value.trim();
+
+            if (!taskText) {
+                alert('Please enter a task.');
+                return;
+            }
+
+            const currentTime = new Date();
+            const formattedTime = currentTime.toLocaleString();  // Task creation time
+
+            tasks.push({ text: taskText, completed: false, time: formattedTime, completedTime: null });
+            taskInput.value = '';
+            renderTasks();
+        }
+
+        function toggleComplete(index) {
+            const currentTime = new Date();
+            tasks[index].completed = !tasks[index].completed;
+
+            // If task is completed, set the completed time
+            if (tasks[index].completed) {
+                tasks[index].completedTime = currentTime.toLocaleString();
+            } else {
+                tasks[index].completedTime = null; // Reset completed time if unchecked
+            }
+
+            renderTasks();
+        }
+
+        function editTask(index) {
+            const newTask = prompt('Edit the task:', tasks[index].text);
+            if (newTask !== null) {
+                tasks[index].text = newTask.trim();
+                tasks[index].time = new Date().toLocaleString();  // Update the creation time
+                renderTasks();
+            }
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const tasksContainer = document.getElementById('tasks');
+            tasksContainer.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskElement = document.createElement('li');
+                taskElement.className = `task ${task.completed ? 'completed' : ''}`;
+                
+                const taskText = document.createElement('span');
+                taskText.textContent = task.text;
+
+                const taskTime = document.createElement('span');
+                taskTime.className = 'task-time';
+                taskTime.textContent = `Added: ${task.time}`;
+
+                const completeButton = document.createElement('button');
+                completeButton.textContent = 'Complete';
+                completeButton.className = 'complete';
+                completeButton.onclick = () => toggleComplete(index);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.className = 'edit';
+                editButton.onclick = () => editTask(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete';
+                deleteButton.onclick = () => deleteTask(index);
+
+                // Show completed time only if task is marked as completed
+                const completedTimeElement = document.createElement('span');
+                completedTimeElement.className = 'task-completed-time';
+                if (task.completed) {
+                    completedTimeElement.textContent = `Completed: ${task.completedTime}`;
+                }
+
+                taskElement.appendChild(taskText);
+                taskElement.appendChild(taskTime);
+                taskElement.appendChild(completeButton);
+                taskElement.appendChild(editButton);
+                taskElement.appendChild(deleteButton);
+
+                if (task.completed) {
+                    taskElement.appendChild(completedTimeElement);  // Add completed time if the task is completed
+                }
+
+                tasksContainer.appendChild(taskElement);
+            });
+        }
+    </script>
+</body>
+</html>
